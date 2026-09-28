@@ -44,7 +44,12 @@ android {
 }
 
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
+    // Bumped from 2024.09.00 to line up with compose-ui 1.10.6, which
+    // Amplify's transitive deps force regardless of what this BOM asks
+    // for (Gradle always wins on the higher version) - leaving the BOM
+    // itself stale just meant material3/ui-tooling stayed mismatched
+    // with the compose-ui version actually being compiled against.
+    implementation(platform("androidx.compose:compose-bom:2025.09.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
@@ -60,15 +65,17 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.0")
 
     // Amplify doesn't publish a BOM the way Compose/Stripe do — every
-    // module needs the same version applied individually. Left as "+"
-    // (latest) rather than a guessed pin: this was written without a
-    // local Gradle to verify exact current version numbers against, and
-    // "does it resolve and compile" from CI is the real check.
-    implementation("com.amplifyframework:core:+")
-    implementation("com.amplifyframework:core-kotlin:+")
-    implementation("com.amplifyframework:aws-auth-cognito:+")
-    implementation("com.amplifyframework:aws-api:+")
-    implementation("com.amplifyframework:aws-storage-s3:+")
+    // module needs the same version applied individually. Was left as "+"
+    // (latest) originally since this was written without a local Gradle
+    // to check current version numbers against; CI's first real run
+    // showed it resolving to 2.42.0, so pinning to that now stops it
+    // drifting to something newer (and re-breaking compileSdk/AGP/Kotlin
+    // alignment all over again) while everything else settles.
+    implementation("com.amplifyframework:core:2.42.0")
+    implementation("com.amplifyframework:core-kotlin:2.42.0")
+    implementation("com.amplifyframework:aws-auth-cognito:2.42.0")
+    implementation("com.amplifyframework:aws-api:2.42.0")
+    implementation("com.amplifyframework:aws-storage-s3:2.42.0")
 
     implementation("com.google.code.gson:gson:2.11.0")
 
