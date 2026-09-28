@@ -1,0 +1,17 @@
+*.iml
+.gradle/
+/local.properties
+.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# No gradle wrapper is checked in — see README.md for why. Android Studio
+# generates one automatically on first open, and it's fine for that copy
+# to stay local/untracked, or to be committed later once verified.
+gradle/wrapper/gradle-wrapper.jar
+gradlew
+gradlew.bat

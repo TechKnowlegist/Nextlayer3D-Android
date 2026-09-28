@@ -1,0 +1,8 @@
+<resources>
+    <!-- Minimal manifest theme for the brief window before Compose content
+         is set — actual UI theming all happens via Compose's MaterialTheme
+         inside setContent {}. Extends a platform theme directly so this
+         app doesn't need the classic (View-system) Material Components
+         library as a dependency alongside Compose Material3. -->
+    <style name="Theme.Nextlayer3D" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
