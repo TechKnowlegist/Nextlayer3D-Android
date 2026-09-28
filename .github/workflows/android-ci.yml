@@ -24,12 +24,13 @@ jobs:
       # No gradle wrapper is checked in (see README for why), so this needs
       # to actually provision Gradle itself rather than its default
       # behavior of just optimizing an existing ./gradlew.
-      # AGP 8.9.1 (bumped after the first CI run needed it) requires a
-      # newer minimum Gradle than 8.9 itself.
+      # AGP 8.13.0 (bumped to pick up a newer R8 - see root build.gradle.kts)
+      # requires Gradle 8.13 minimum; using the latest 8.14.x patch for the
+      # bug fixes on top of that floor without jumping to the Gradle 9 line.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.11.1"
+          gradle-version: "8.14.5"
 
       - name: Assemble debug APK
         run: gradle assembleDebug --no-daemon
