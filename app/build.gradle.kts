@@ -6,12 +6,16 @@ plugins {
 
 android {
     namespace = "com.nextlayer3d.app"
-    compileSdk = 34
+    // Bumped from 34 to 36 (and AGP 8.5.2 -> 8.9.1 in the root build file)
+    // after CI's first real run: Amplify's current release pulls in
+    // AndroidX transitives (core 1.17.0, lifecycle 2.10.0, compose-ui
+    // 1.10.6) that require compiling against API 36 with a new-enough AGP.
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.nextlayer3d.app"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
     }
@@ -25,6 +29,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Amplify's core modules now require this (they use java.time /
+        // streams APIs that need desugaring to run on minSdk 26).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -69,4 +76,6 @@ dependencies {
     implementation("com.stripe:stripe-android:+")
 
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
