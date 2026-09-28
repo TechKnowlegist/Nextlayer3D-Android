@@ -36,6 +36,11 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        // Material3's Scaffold/TopAppBar/etc. are behind @ExperimentalMaterial3Api,
+        // which (unlike most Kotlin experimental annotations) defaults to
+        // RequiresOptIn.Level.ERROR - every screen using them needs this opt-in
+        // or compileDebugKotlin fails outright, not just warns.
+        freeCompilerArgs = freeCompilerArgs + "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
     }
 
     buildFeatures {

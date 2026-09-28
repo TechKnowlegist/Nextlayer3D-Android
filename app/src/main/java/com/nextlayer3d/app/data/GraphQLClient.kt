@@ -1,6 +1,6 @@
 package com.nextlayer3d.app.data
 
-import com.amplifyframework.api.graphql.GsonVariablesSerializer
+import com.amplifyframework.api.aws.GsonVariablesSerializer
 import com.amplifyframework.api.graphql.SimpleGraphQLRequest
 import com.amplifyframework.kotlin.core.Amplify
 import com.google.gson.Gson
