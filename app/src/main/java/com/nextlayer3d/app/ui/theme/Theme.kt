@@ -31,20 +31,23 @@ private val DarkColors = darkColorScheme(
     onError = Color(0xFF3B0A0A),
 )
 
+// All three *Container tones below are deliberately NOT Material 3's
+// usual derivation (a pale, heavily-desaturated tint of the main color) —
+// that reads as generic pastel-Material rather than Nextlayer's own
+// vivid palette. Each is instead a genuinely mid-tone, clearly-the-brand-
+// hue version: still light enough to host a dark onXContainer text color
+// at AA contrast, but recognizably green/blue/purple at a glance.
 private val LightColors = lightColorScheme(
     primary = Color(0xFF167C3C), // darker than NlGreen for AA contrast on white
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFBFF2CF),
-    onPrimaryContainer = Color(0xFF07340F),
+    primaryContainer = Color(0xFF6EDB9C),
+    onPrimaryContainer = Color(0xFF07320F),
     secondary = Color(0xFF0B74B0), // darker than NlSky for the same reason
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFCCEBFB),
-    onSecondaryContainer = Color(0xFF02314B),
+    secondaryContainer = Color(0xFF63CEFA),
+    onSecondaryContainer = Color(0xFF023048),
     tertiary = NlPurple,
     onTertiary = Color.White,
-    // A real, clearly-purple container instead of M3's usual pale pastel
-    // tint — the washed-out lilac read as "not actually one of our brand
-    // colors" even though it was mathematically derived from NlPurple.
     tertiaryContainer = Color(0xFFDDA6F7),
     onTertiaryContainer = Color(0xFF34104A),
     background = NlOffWhite,

@@ -38,16 +38,16 @@ import com.nextlayer3d.app.ui.theme.NextlayerTheme
 
 private data class TopLevelRoute(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
-// Left to right: Home (Shop), Cart, Feed (the website's "Build Plate"),
-// LayerAI, Hub (Account + order history + settings-to-come). Orders isn't
-// its own tab anymore — it's reachable from Hub instead, folded in along
-// with everything else account-related.
+// Left to right: Home, Feed (next to Home, same as the website's "Build
+// Plate" gallery sitting close to Shop), Hub (the middle tab), Cart,
+// LayerAI. Orders isn't its own tab — it's reachable from Hub instead,
+// folded in along with everything else account-related.
 private val topLevelRoutes = listOf(
     TopLevelRoute("home", "Home", Icons.Filled.Home),
-    TopLevelRoute("cart", "Cart", Icons.Filled.ShoppingCart),
     TopLevelRoute("feed", "Feed", Icons.Filled.DynamicFeed),
-    TopLevelRoute("layerai", "LayerAI", Icons.Filled.AutoAwesome),
     TopLevelRoute("hub", "Hub", Icons.Filled.Hub),
+    TopLevelRoute("cart", "Cart", Icons.Filled.ShoppingCart),
+    TopLevelRoute("layerai", "LayerAI", Icons.Filled.AutoAwesome),
 )
 
 @Composable
