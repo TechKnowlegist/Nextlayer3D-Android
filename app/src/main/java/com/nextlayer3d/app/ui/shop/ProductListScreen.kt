@@ -1,11 +1,11 @@
 package com.nextlayer3d.app.ui.shop
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +21,7 @@ import com.nextlayer3d.app.models.Product
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProductListScreen(onProductClick: (String) -> Unit) {
+fun ProductListScreen(onProductClick: (String) -> Unit, cartItemCount: Int = 0, onCartClick: () -> Unit = {}) {
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -39,7 +39,22 @@ fun ProductListScreen(onProductClick: (String) -> Unit) {
 
     LaunchedEffect(Unit) { load() }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Pre-Built") }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Pre-Built") },
+                actions = {
+                    IconButton(onClick = onCartClick) {
+                        BadgedBox(badge = {
+                            if (cartItemCount > 0) Badge { Text("$cartItemCount") }
+                        }) {
+                            Icon(Icons.Filled.ShoppingCart, contentDescription = "Cart")
+                        }
+                    }
+                },
+            )
+        },
+    ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when {
                 isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -51,7 +66,10 @@ fun ProductListScreen(onProductClick: (String) -> Unit) {
                     Spacer(Modifier.height(8.dp))
                     Text(errorMessage ?: "")
                 }
-                else -> LazyColumn {
+                else -> LazyColumn(
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     items(products, key = { it.id }) { product ->
                         ProductRow(product = product, onClick = { onProductClick(product.id) })
                     }
@@ -66,31 +84,30 @@ private fun ProductRow(product: Product, onClick: () -> Unit) {
     var imageUrl by remember(product.id) { mutableStateOf<String?>(null) }
     LaunchedEffect(product.id) { imageUrl = ImageResolver.resolve(product.image) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center,
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (imageUrl != null) {
-                AsyncImage(model = imageUrl, contentDescription = product.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            } else {
-                Text(product.icon ?: "📦", style = MaterialTheme.typography.headlineMedium)
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (imageUrl != null) {
+                    AsyncImage(model = imageUrl, contentDescription = product.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                } else {
+                    Text(product.icon ?: "📦", style = MaterialTheme.typography.headlineMedium)
+                }
             }
-        }
-        Spacer(Modifier.width(12.dp))
-        Column {
-            Text(product.name, style = MaterialTheme.typography.titleMedium)
-            Text(product.formattedPrice, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (product.isOutOfStock) {
-                Text("Out of Stock", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(product.name, style = MaterialTheme.typography.titleMedium)
+                Text(product.formattedPrice, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (product.isOutOfStock) {
+                    Text("Out of Stock", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                }
             }
         }
     }

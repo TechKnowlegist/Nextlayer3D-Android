@@ -1,8 +1,17 @@
 <resources>
     <!-- Minimal manifest theme for the brief window before Compose content
-         is set — actual UI theming all happens via Compose's MaterialTheme
+         is set — actual UI theming all happens via Compose's NextlayerTheme
          inside setContent {}. Extends a platform theme directly so this
          app doesn't need the classic (View-system) Material Components
-         library as a dependency alongside Compose Material3. -->
-    <style name="Theme.Nextlayer3D" parent="android:Theme.Material.Light.NoActionBar" />
+         library as a dependency alongside Compose Material3.
+
+         Dark parent + a near-black windowBackground (matching
+         ui/theme/Color.kt's NlNearBlack) instead of the platform default
+         white: the first thing most users see is the dark-branded Welcome
+         screen, so a white flash before it would be the more jarring of
+         the two trade-offs — no values-night variant for the inverse case
+         since it's a sub-100ms window either way. -->
+    <style name="Theme.Nextlayer3D" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0A120D</item>
+    </style>
 </resources>

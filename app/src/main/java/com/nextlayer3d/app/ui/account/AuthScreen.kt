@@ -2,6 +2,8 @@ package com.nextlayer3d.app.ui.account
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,13 +14,15 @@ import com.nextlayer3d.app.data.AuthService
 import com.nextlayer3d.app.state.SessionViewModel
 import kotlinx.coroutines.launch
 
-private enum class AuthMode { SIGN_IN, SIGN_UP, CONFIRM }
+enum class AuthMode { SIGN_IN, SIGN_UP, CONFIRM }
 
 /** Combined sign-in / sign-up / confirm-code flow — mirrors the web app's
- * single AuthModal and the iOS app's AuthView. */
+ * single AuthModal and the iOS app's AuthView. `initialMode` lets the
+ * Welcome screen's two separate buttons (Create Account / Sign In) land on
+ * the matching form instead of always opening to sign-in. */
 @Composable
-fun AuthScreen(session: SessionViewModel) {
-    var mode by remember { mutableStateOf(AuthMode.SIGN_IN) }
+fun AuthScreen(session: SessionViewModel, initialMode: AuthMode = AuthMode.SIGN_IN, onBack: (() -> Unit)? = null) {
+    var mode by remember { mutableStateOf(initialMode) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
@@ -52,7 +56,21 @@ fun AuthScreen(session: SessionViewModel) {
         }
     }
 
-    Column(Modifier.padding(16.dp)) {
+    Scaffold(
+        topBar = {
+            if (onBack != null) {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                )
+            }
+        },
+    ) { padding ->
+    Column(Modifier.padding(padding).padding(16.dp)) {
         Text(if (mode == AuthMode.SIGN_UP) "Create Account" else "Sign In", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
 
@@ -109,5 +127,6 @@ fun AuthScreen(session: SessionViewModel) {
                 Text(if (mode == AuthMode.SIGN_IN) "Need an account? Sign up" else "Already have an account? Sign in")
             }
         }
+    }
     }
 }

@@ -12,15 +12,15 @@ import com.nextlayer3d.app.models.Address
 import com.nextlayer3d.app.state.SessionViewModel
 import kotlinx.coroutines.launch
 
+// Only ever shown while signed in — NextlayerApp gates the whole tabbed
+// app behind session.isSignedIn and shows the Welcome/AuthScreen flow
+// otherwise, so this no longer needs to embed AuthScreen itself for a
+// signed-out case that can't actually happen here.
 @Composable
 fun AccountScreen(session: SessionViewModel, onAddAddress: () -> Unit) {
     Scaffold(topBar = { TopAppBar(title = { Text("Account") }) }) { padding ->
         Box(Modifier.padding(padding)) {
-            if (session.isSignedIn) {
-                SignedInAccount(session = session, onAddAddress = onAddAddress)
-            } else {
-                AuthScreen(session = session)
-            }
+            SignedInAccount(session = session, onAddAddress = onAddAddress)
         }
     }
 }
