@@ -15,14 +15,19 @@ class GraphQLDataException(message: String) : Exception(message)
 object GraphQLClient {
 
     suspend inline fun <reified T> query(document: String, variables: Map<String, Any> = emptyMap()): T {
-        val request = SimpleGraphQLRequest(document, variables, String::class.java, GsonVariablesSerializer())
+        // Explicit <String> here: SimpleGraphQLRequest is a Java class, and
+        // passing only the String::class.java token isn't enough for
+        // Kotlin's inference to pin its own R down on its own — without
+        // this it leaves `request` untyped, which then also breaks
+        // inference on Amplify.API.query(request) right below.
+        val request = SimpleGraphQLRequest<String>(document, variables, String::class.java, GsonVariablesSerializer())
         val response = Amplify.API.query(request)
         val data = response.data ?: throw GraphQLDataException("No data in response: ${response.errors}")
         return Gson().fromJson(data, T::class.java)
     }
 
     suspend inline fun <reified T> mutate(document: String, variables: Map<String, Any> = emptyMap()): T {
-        val request = SimpleGraphQLRequest(document, variables, String::class.java, GsonVariablesSerializer())
+        val request = SimpleGraphQLRequest<String>(document, variables, String::class.java, GsonVariablesSerializer())
         val response = Amplify.API.mutate(request)
         val data = response.data ?: throw GraphQLDataException("No data in response: ${response.errors}")
         return Gson().fromJson(data, T::class.java)
