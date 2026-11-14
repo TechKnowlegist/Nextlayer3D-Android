@@ -42,8 +42,11 @@ private val LightColors = lightColorScheme(
     onSecondaryContainer = Color(0xFF02314B),
     tertiary = NlPurple,
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFF1E0FE),
-    onTertiaryContainer = Color(0xFF330A4D),
+    // A real, clearly-purple container instead of M3's usual pale pastel
+    // tint — the washed-out lilac read as "not actually one of our brand
+    // colors" even though it was mathematically derived from NlPurple.
+    tertiaryContainer = Color(0xFFDDA6F7),
+    onTertiaryContainer = Color(0xFF34104A),
     background = NlOffWhite,
     onBackground = Color(0xFF14201A),
     surface = NlSurfaceLight,

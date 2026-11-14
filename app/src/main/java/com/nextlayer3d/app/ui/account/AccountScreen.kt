@@ -3,8 +3,12 @@ package com.nextlayer3d.app.ui.account
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextlayer3d.app.data.AddressService
@@ -15,18 +19,20 @@ import kotlinx.coroutines.launch
 // Only ever shown while signed in — NextlayerApp gates the whole tabbed
 // app behind session.isSignedIn and shows the Welcome/AuthScreen flow
 // otherwise, so this no longer needs to embed AuthScreen itself for a
-// signed-out case that can't actually happen here.
+// signed-out case that can't actually happen here. Labeled "Hub" in the
+// tab bar — account info, order history, and (later) settings all live
+// here instead of each getting their own tab.
 @Composable
-fun AccountScreen(session: SessionViewModel, onAddAddress: () -> Unit) {
-    Scaffold(topBar = { TopAppBar(title = { Text("Account") }) }) { padding ->
+fun AccountScreen(session: SessionViewModel, onAddAddress: () -> Unit, onViewOrders: () -> Unit) {
+    Scaffold(topBar = { TopAppBar(title = { Text("Hub") }) }) { padding ->
         Box(Modifier.padding(padding)) {
-            SignedInAccount(session = session, onAddAddress = onAddAddress)
+            SignedInAccount(session = session, onAddAddress = onAddAddress, onViewOrders = onViewOrders)
         }
     }
 }
 
 @Composable
-private fun SignedInAccount(session: SessionViewModel, onAddAddress: () -> Unit) {
+private fun SignedInAccount(session: SessionViewModel, onAddAddress: () -> Unit, onViewOrders: () -> Unit) {
     var addresses by remember { mutableStateOf<List<Address>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -49,6 +55,18 @@ private fun SignedInAccount(session: SessionViewModel, onAddAddress: () -> Unit)
             Text(session.email ?: "Signed in", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
             OutlinedButton(onClick = { session.signOut() }) { Text("Sign Out") }
+            Spacer(Modifier.height(20.dp))
+            Card(onClick = onViewOrders, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Filled.ReceiptLong, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(12.dp))
+                    Text("My Orders", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
             Spacer(Modifier.height(24.dp))
             Text("Saved Addresses", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))

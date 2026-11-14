@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,8 +19,10 @@ import com.nextlayer3d.app.data.ProductService
 import com.nextlayer3d.app.models.Product
 import kotlinx.coroutines.launch
 
+// Cart is its own bottom tab again (not a top-bar badge icon here) —
+// see the tab-bar rework in NextlayerApp.kt.
 @Composable
-fun ProductListScreen(onProductClick: (String) -> Unit, cartItemCount: Int = 0, onCartClick: () -> Unit = {}) {
+fun ProductListScreen(onProductClick: (String) -> Unit) {
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -39,22 +40,7 @@ fun ProductListScreen(onProductClick: (String) -> Unit, cartItemCount: Int = 0, 
 
     LaunchedEffect(Unit) { load() }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Pre-Built") },
-                actions = {
-                    IconButton(onClick = onCartClick) {
-                        BadgedBox(badge = {
-                            if (cartItemCount > 0) Badge { Text("$cartItemCount") }
-                        }) {
-                            Icon(Icons.Filled.ShoppingCart, contentDescription = "Cart")
-                        }
-                    }
-                },
-            )
-        },
-    ) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text("Pre-Built") }) }) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when {
                 isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))

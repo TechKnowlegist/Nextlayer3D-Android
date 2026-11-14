@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Inventory2
@@ -20,13 +21,13 @@ import com.nextlayer3d.app.models.Order
 import com.nextlayer3d.app.state.SessionViewModel
 import kotlinx.coroutines.launch
 
-/** The Orders tab: order history for the signed-in account (via the
- * existing-but-previously-unused OrderService.myOrders), plus a "track by
- * number" dialog for an order not tied to this account (a gift, say) —
- * folded in here instead of staying its own bottom tab now that Orders
- * has a real home. */
+/** Order history for the signed-in account (via the existing-but-
+ * previously-unused OrderService.myOrders), plus a "track by number"
+ * dialog for an order not tied to this account (a gift, say). Reached by
+ * tapping "My Orders" inside Hub rather than its own bottom tab, so it
+ * takes a back arrow like any other pushed screen. */
 @Composable
-fun OrdersScreen(session: SessionViewModel) {
+fun OrdersScreen(session: SessionViewModel, onBack: () -> Unit) {
     var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -60,6 +61,11 @@ fun OrdersScreen(session: SessionViewModel) {
         topBar = {
             TopAppBar(
                 title = { Text("Orders") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 actions = {
                     TextButton(onClick = { showTrackDialog = true }) {
                         Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(18.dp))

@@ -4,10 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.DynamicFeed
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Hub
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,10 +25,11 @@ import com.nextlayer3d.app.state.CartViewModel
 import com.nextlayer3d.app.state.SessionViewModel
 import com.nextlayer3d.app.ui.account.AccountScreen
 import com.nextlayer3d.app.ui.account.AddressEditScreen
-import com.nextlayer3d.app.ui.buildplate.BuildPlateScreen
 import com.nextlayer3d.app.ui.cart.CartScreen
 import com.nextlayer3d.app.ui.checkout.CheckoutScreen
 import com.nextlayer3d.app.ui.checkout.OrderConfirmationScreen
+import com.nextlayer3d.app.ui.feed.FeedScreen
+import com.nextlayer3d.app.ui.layerai.LayerAiScreen
 import com.nextlayer3d.app.ui.onboarding.AuthGateScreen
 import com.nextlayer3d.app.ui.orders.OrdersScreen
 import com.nextlayer3d.app.ui.shop.ProductDetailScreen
@@ -36,13 +38,16 @@ import com.nextlayer3d.app.ui.theme.NextlayerTheme
 
 private data class TopLevelRoute(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
-// Cart dropped off this list — it's a top-bar icon+badge on Shop now
-// instead of a fifth tab, which also frees a slot for Build Plate.
+// Left to right: Home (Shop), Cart, Feed (the website's "Build Plate"),
+// LayerAI, Hub (Account + order history + settings-to-come). Orders isn't
+// its own tab anymore — it's reachable from Hub instead, folded in along
+// with everything else account-related.
 private val topLevelRoutes = listOf(
-    TopLevelRoute("shop", "Shop", Icons.Filled.Widgets),
-    TopLevelRoute("orders", "Orders", Icons.Filled.ReceiptLong),
-    TopLevelRoute("buildplate", "Build Plate", Icons.Filled.GridView),
-    TopLevelRoute("account", "Account", Icons.Filled.AccountCircle),
+    TopLevelRoute("home", "Home", Icons.Filled.Home),
+    TopLevelRoute("cart", "Cart", Icons.Filled.ShoppingCart),
+    TopLevelRoute("feed", "Feed", Icons.Filled.DynamicFeed),
+    TopLevelRoute("layerai", "LayerAI", Icons.Filled.AutoAwesome),
+    TopLevelRoute("hub", "Hub", Icons.Filled.Hub),
 )
 
 @Composable
@@ -95,15 +100,11 @@ private fun MainScaffold(session: SessionViewModel) {
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = "shop",
+            startDestination = "home",
             modifier = Modifier.padding(padding),
         ) {
-            composable("shop") {
-                ProductListScreen(
-                    onProductClick = { id -> navController.navigate("product/$id") },
-                    cartItemCount = cart.itemCount,
-                    onCartClick = { navController.navigate("cart") },
-                )
+            composable("home") {
+                ProductListScreen(onProductClick = { id -> navController.navigate("product/$id") })
             }
             composable("product/{productId}") { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
@@ -127,14 +128,22 @@ private fun MainScaffold(session: SessionViewModel) {
                 val orderNumber = backStackEntry.arguments?.getString("orderNumber") ?: return@composable
                 OrderConfirmationScreen(orderNumber = orderNumber)
             }
+            composable("feed") {
+                FeedScreen()
+            }
+            composable("layerai") {
+                LayerAiScreen()
+            }
+            composable("hub") {
+                AccountScreen(
+                    session = session,
+                    onAddAddress = { navController.navigate("addAddress") },
+                    onViewOrders = { navController.navigate("orders") },
+                )
+            }
+            // Not a bottom tab — reached from the "My Orders" row inside Hub.
             composable("orders") {
-                OrdersScreen(session = session)
-            }
-            composable("buildplate") {
-                BuildPlateScreen()
-            }
-            composable("account") {
-                AccountScreen(session = session, onAddAddress = { navController.navigate("addAddress") })
+                OrdersScreen(session = session, onBack = { navController.popBackStack() })
             }
             composable("addAddress") {
                 AddressEditScreen(onSaved = { navController.popBackStack() })
