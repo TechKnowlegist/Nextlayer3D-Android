@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nextlayer3d.app.ui.theme.GradientText
 
 /** Honest placeholder, not a fake gallery — this is the community gallery
  * the website calls "Build Plate" (browse/share what people have
@@ -19,7 +20,7 @@ import androidx.compose.ui.unit.dp
  * here yet. */
 @Composable
 fun FeedScreen() {
-    Scaffold(topBar = { TopAppBar(title = { Text("Feed") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { GradientText("Feed") }) }) { padding ->
         Column(
             modifier = Modifier.padding(padding).fillMaxSize().padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

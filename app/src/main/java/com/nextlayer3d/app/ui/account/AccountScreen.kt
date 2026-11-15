@@ -5,28 +5,76 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nextlayer3d.app.data.AddressService
 import com.nextlayer3d.app.models.Address
 import com.nextlayer3d.app.state.SessionViewModel
+import com.nextlayer3d.app.ui.theme.GradientButton
+import com.nextlayer3d.app.ui.theme.GradientText
 import kotlinx.coroutines.launch
 
-// Only ever shown while signed in — NextlayerApp gates the whole tabbed
-// app behind session.isSignedIn and shows the Welcome/AuthScreen flow
-// otherwise, so this no longer needs to embed AuthScreen itself for a
-// signed-out case that can't actually happen here. Labeled "Hub" in the
-// tab bar — account info, order history, and (later) settings all live
-// here instead of each getting their own tab.
+// NextlayerApp now lets someone reach the tabbed app as a guest
+// ("Continue as Guest" on the welcome screen), so Hub can be opened
+// without session.isSignedIn being true — in that case it shows a
+// sign-in prompt instead of SignedInAccount, since orders/addresses need
+// a real account. Labeled "Hub" in the tab bar — account info, order
+// history, and (later) settings all live here instead of each getting
+// their own tab.
 @Composable
-fun AccountScreen(session: SessionViewModel, onAddAddress: () -> Unit, onViewOrders: () -> Unit) {
-    Scaffold(topBar = { TopAppBar(title = { Text("Hub") }) }) { padding ->
+fun AccountScreen(
+    session: SessionViewModel,
+    onAddAddress: () -> Unit,
+    onViewOrders: () -> Unit,
+    onSignIn: () -> Unit,
+    onSignUp: () -> Unit,
+) {
+    Scaffold(topBar = { TopAppBar(title = { GradientText("Hub") }) }) { padding ->
         Box(Modifier.padding(padding)) {
-            SignedInAccount(session = session, onAddAddress = onAddAddress, onViewOrders = onViewOrders)
+            if (session.isSignedIn) {
+                SignedInAccount(session = session, onAddAddress = onAddAddress, onViewOrders = onViewOrders)
+            } else {
+                GuestAccount(onSignIn = onSignIn, onSignUp = onSignUp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun GuestAccount(onSignIn: () -> Unit, onSignUp: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Icon(
+            Icons.Filled.AccountCircle,
+            contentDescription = null,
+            modifier = Modifier.size(56.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(16.dp))
+        Text("You're browsing as a guest", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Sign in to see your orders, saved addresses, and account details.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(24.dp))
+        GradientButton(onClick = onSignUp, modifier = Modifier.fillMaxWidth()) {
+            Text("Create Account", style = MaterialTheme.typography.titleMedium)
+        }
+        Spacer(Modifier.height(12.dp))
+        OutlinedButton(onClick = onSignIn, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            Text("Sign In", style = MaterialTheme.typography.titleMedium)
         }
     }
 }

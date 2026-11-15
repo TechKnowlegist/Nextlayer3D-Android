@@ -12,6 +12,7 @@ import com.nextlayer3d.app.state.SessionViewModel
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.rememberPaymentSheet
+import com.nextlayer3d.app.ui.theme.GradientButton
 import kotlinx.coroutines.launch
 
 @Composable
@@ -95,7 +96,7 @@ fun CheckoutScreen(cart: CartViewModel, session: SessionViewModel, onOrderPlaced
 
             Spacer(Modifier.height(16.dp))
             if (clientSecret == null) {
-                Button(
+                GradientButton(
                     onClick = {
                         scope.launch {
                             isPreparing = true
@@ -111,10 +112,10 @@ fun CheckoutScreen(cart: CartViewModel, session: SessionViewModel, onOrderPlaced
                     enabled = formIsValid && !isPreparing,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(if (isPreparing) "Preparing payment…" else "Continue to Payment")
+                    Text(if (isPreparing) "Preparing payment…" else "Continue to Payment", style = MaterialTheme.typography.titleMedium)
                 }
             } else {
-                Button(
+                GradientButton(
                     onClick = {
                         paymentSheet.presentWithPaymentIntent(
                             clientSecret!!,
@@ -123,7 +124,7 @@ fun CheckoutScreen(cart: CartViewModel, session: SessionViewModel, onOrderPlaced
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Pay $" + "%.2f".format(cart.total))
+                    Text("Pay $" + "%.2f".format(cart.total), style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

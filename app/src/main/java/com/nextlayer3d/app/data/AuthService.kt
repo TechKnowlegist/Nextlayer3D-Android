@@ -29,6 +29,14 @@ object AuthService {
     }
 
     suspend fun signIn(email: String, password: String): Boolean {
+        // Amplify throws (SignedInException: "already a user signed in")
+        // if any session is active when sign-in is attempted — including a
+        // leftover session from a previous test login on this device.
+        // Clear it first so switching accounts doesn't surface that as a
+        // confusing, unrelated-looking error.
+        if (isSignedIn()) {
+            signOut()
+        }
         val result = Amplify.Auth.signIn(email, password)
         return result.isSignedIn
     }

@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextlayer3d.app.state.CartViewModel
+import com.nextlayer3d.app.ui.theme.GradientButton
+import com.nextlayer3d.app.ui.theme.GradientText
 
 @Composable
 fun CartScreen(cart: CartViewModel, onCheckout: () -> Unit) {
-    Scaffold(topBar = { TopAppBar(title = { Text("Cart") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { GradientText("Cart") }) }) { padding ->
         if (cart.items.isEmpty()) {
             Column(
                 Modifier.padding(padding).fillMaxSize().padding(24.dp),
@@ -61,8 +63,8 @@ fun CartScreen(cart: CartViewModel, onCheckout: () -> Unit) {
                         Text("$" + "%.2f".format(cart.total), style = MaterialTheme.typography.titleMedium)
                     }
                     Spacer(Modifier.height(12.dp))
-                    Button(onClick = onCheckout, modifier = Modifier.fillMaxWidth()) {
-                        Text("Checkout")
+                    GradientButton(onClick = onCheckout, modifier = Modifier.fillMaxWidth()) {
+                        Text("Checkout", style = MaterialTheme.typography.titleMedium)
                     }
                 }
             }

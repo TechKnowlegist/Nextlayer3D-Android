@@ -16,6 +16,13 @@ class SessionViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
+    // Set by "Continue as Guest" on the welcome screen — lets someone
+    // browse the tabbed app (Shop/Feed/Cart/LayerAI) without an account.
+    // Hub falls back to a sign-in prompt instead of real account data
+    // while this is true and isSignedIn is false.
+    var isGuest by mutableStateOf(false)
+        private set
+
     init {
         refresh()
     }
@@ -25,8 +32,13 @@ class SessionViewModel : ViewModel() {
             isLoading = true
             isSignedIn = AuthService.isSignedIn()
             email = if (isSignedIn) AuthService.currentUserEmail() else null
+            if (isSignedIn) isGuest = false
             isLoading = false
         }
+    }
+
+    fun continueAsGuest() {
+        isGuest = true
     }
 
     fun signOut() {
@@ -34,6 +46,7 @@ class SessionViewModel : ViewModel() {
             AuthService.signOut()
             isSignedIn = false
             email = null
+            isGuest = false
         }
     }
 }

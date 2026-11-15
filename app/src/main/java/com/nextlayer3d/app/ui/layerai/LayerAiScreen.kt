@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nextlayer3d.app.ui.theme.GradientText
 
 /** Honest placeholder — LayerAI (describe something in words, get back a
  * printable 3D file) isn't connected to a real generation backend even on
@@ -17,7 +18,7 @@ import androidx.compose.ui.unit.dp
  * Same "say so plainly" posture as Feed's placeholder. */
 @Composable
 fun LayerAiScreen() {
-    Scaffold(topBar = { TopAppBar(title = { Text("LayerAI") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { GradientText("LayerAI") }) }) { padding ->
         Column(
             modifier = Modifier.padding(padding).fillMaxSize().padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

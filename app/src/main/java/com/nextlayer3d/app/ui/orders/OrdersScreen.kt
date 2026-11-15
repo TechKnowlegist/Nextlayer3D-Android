@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.nextlayer3d.app.data.OrderService
 import com.nextlayer3d.app.models.Order
 import com.nextlayer3d.app.state.SessionViewModel
+import com.nextlayer3d.app.ui.theme.GradientText
 import kotlinx.coroutines.launch
 
 /** Order history for the signed-in account (via the existing-but-
@@ -60,7 +61,7 @@ fun OrdersScreen(session: SessionViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Orders") },
+                title = { GradientText("Orders") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

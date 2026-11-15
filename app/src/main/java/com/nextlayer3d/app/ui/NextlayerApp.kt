@@ -1,8 +1,12 @@
 package com.nextlayer3d.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DynamicFeed
@@ -14,6 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -25,6 +33,8 @@ import com.nextlayer3d.app.state.CartViewModel
 import com.nextlayer3d.app.state.SessionViewModel
 import com.nextlayer3d.app.ui.account.AccountScreen
 import com.nextlayer3d.app.ui.account.AddressEditScreen
+import com.nextlayer3d.app.ui.account.AuthMode
+import com.nextlayer3d.app.ui.account.AuthScreen
 import com.nextlayer3d.app.ui.cart.CartScreen
 import com.nextlayer3d.app.ui.checkout.CheckoutScreen
 import com.nextlayer3d.app.ui.checkout.OrderConfirmationScreen
@@ -35,8 +45,10 @@ import com.nextlayer3d.app.ui.orders.OrdersScreen
 import com.nextlayer3d.app.ui.shop.ProductDetailScreen
 import com.nextlayer3d.app.ui.shop.ProductListScreen
 import com.nextlayer3d.app.ui.theme.NextlayerTheme
+import com.nextlayer3d.app.ui.theme.NlGreen
+import com.nextlayer3d.app.ui.theme.NlSky
 
-private data class TopLevelRoute(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+private data class TopLevelRoute(val route: String, val label: String, val icon: ImageVector)
 
 // Left to right: Home, Feed (next to Home, same as the website's "Build
 // Plate" gallery sitting close to Shop), Hub (the middle tab), Cart,
@@ -59,12 +71,14 @@ fun NextlayerApp() {
             session.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-            // Everything below session.isSignedIn being true — the whole
-            // tabbed app is gated behind it, and AuthGateScreen (Welcome +
-            // AuthScreen) is the only thing a signed-out user can see.
-            // Signing out from AccountScreen flips this back automatically,
-            // no navigation bookkeeping needed for that transition.
-            !session.isSignedIn -> AuthGateScreen(session = session)
+            // "Continue as Guest" on the welcome screen sets isGuest and
+            // skips straight to MainScaffold without an account — Hub
+            // shows a sign-in prompt instead of real account data in that
+            // case (see AccountScreen's GuestAccount branch).
+            !session.isSignedIn && !session.isGuest -> AuthGateScreen(
+                session = session,
+                onContinueAsGuest = { session.continueAsGuest() },
+            )
             else -> MainScaffold(session = session)
         }
     }
@@ -91,8 +105,38 @@ private fun MainScaffold(session: SessionViewModel) {
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label) },
+                        // M3's default selected-tab indicator falls back to
+                        // secondaryContainer, which reads as generic pastel
+                        // blue — this paints the brand's own green->sky
+                        // gradient pill behind the icon instead.
+                        icon = {
+                            Box(
+                                modifier = (
+                                    if (selected) {
+                                        Modifier
+                                            .width(56.dp)
+                                            .height(32.dp)
+                                            .background(
+                                                brush = Brush.horizontalGradient(listOf(NlGreen, NlSky)),
+                                                shape = RoundedCornerShape(16.dp),
+                                            )
+                                    } else {
+                                        Modifier
+                                    }
+                                ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    item.icon,
+                                    contentDescription = item.label,
+                                    tint = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        },
+                        label = {
+                            Text(item.label, color = if (selected) NlGreen else MaterialTheme.colorScheme.onSurfaceVariant)
+                        },
+                        colors = NavigationBarItemDefaults.colors(indicatorColor = Color.Transparent),
                     )
                 }
             }
@@ -108,7 +152,11 @@ private fun MainScaffold(session: SessionViewModel) {
             }
             composable("product/{productId}") { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
-                ProductDetailScreen(productId = productId, cart = cart)
+                ProductDetailScreen(
+                    productId = productId,
+                    cart = cart,
+                    onBack = { navController.popBackStack() },
+                )
             }
             composable("cart") {
                 CartScreen(cart = cart, onCheckout = { navController.navigate("checkout") })
@@ -139,6 +187,8 @@ private fun MainScaffold(session: SessionViewModel) {
                     session = session,
                     onAddAddress = { navController.navigate("addAddress") },
                     onViewOrders = { navController.navigate("orders") },
+                    onSignIn = { navController.navigate("signIn") },
+                    onSignUp = { navController.navigate("signUp") },
                 )
             }
             // Not a bottom tab — reached from the "My Orders" row inside Hub.
@@ -147,6 +197,16 @@ private fun MainScaffold(session: SessionViewModel) {
             }
             composable("addAddress") {
                 AddressEditScreen(onSaved = { navController.popBackStack() })
+            }
+            // Reached only from a guest's Hub tab (GuestAccount's Sign In /
+            // Create Account buttons) — signing in here flips
+            // session.isSignedIn, which Hub picks up automatically since it
+            // reads that state directly rather than a one-time nav arg.
+            composable("signIn") {
+                AuthScreen(session = session, initialMode = AuthMode.SIGN_IN, onBack = { navController.popBackStack() })
+            }
+            composable("signUp") {
+                AuthScreen(session = session, initialMode = AuthMode.SIGN_UP, onBack = { navController.popBackStack() })
             }
         }
     }

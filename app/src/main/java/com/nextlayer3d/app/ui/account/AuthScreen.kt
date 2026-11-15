@@ -12,6 +12,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.nextlayer3d.app.data.AuthService
 import com.nextlayer3d.app.state.SessionViewModel
+import com.nextlayer3d.app.ui.theme.GradientButton
+import com.nextlayer3d.app.ui.theme.GradientText
 import kotlinx.coroutines.launch
 
 enum class AuthMode { SIGN_IN, SIGN_UP, CONFIRM }
@@ -37,7 +39,10 @@ fun AuthScreen(session: SessionViewModel, initialMode: AuthMode = AuthMode.SIGN_
             try {
                 when (mode) {
                     AuthMode.SIGN_IN -> {
-                        if (AuthService.signIn(email, password)) session.refresh()
+                        if (AuthService.signIn(email, password)) {
+                            session.refresh()
+                            onBack?.invoke()
+                        }
                     }
                     AuthMode.SIGN_UP -> {
                         mode = if (AuthService.signUp(email, password)) AuthMode.SIGN_IN else AuthMode.CONFIRM
@@ -50,7 +55,7 @@ fun AuthScreen(session: SessionViewModel, initialMode: AuthMode = AuthMode.SIGN_
                     }
                 }
             } catch (e: Exception) {
-                errorMessage = e.message
+                errorMessage = e.message ?: e.javaClass.simpleName
             }
             isLoading = false
         }
@@ -71,7 +76,7 @@ fun AuthScreen(session: SessionViewModel, initialMode: AuthMode = AuthMode.SIGN_
         },
     ) { padding ->
     Column(Modifier.padding(padding).padding(16.dp)) {
-        Text(if (mode == AuthMode.SIGN_UP) "Create Account" else "Sign In", style = MaterialTheme.typography.headlineSmall)
+        GradientText(if (mode == AuthMode.SIGN_UP) "Create Account" else "Sign In", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
 
         if (mode != AuthMode.CONFIRM) {
@@ -108,13 +113,14 @@ fun AuthScreen(session: SessionViewModel, initialMode: AuthMode = AuthMode.SIGN_
         }
 
         Spacer(Modifier.height(16.dp))
-        Button(onClick = ::submit, enabled = !isLoading, modifier = Modifier.fillMaxWidth()) {
+        GradientButton(onClick = ::submit, enabled = !isLoading, modifier = Modifier.fillMaxWidth()) {
             Text(
                 when (mode) {
                     AuthMode.SIGN_IN -> "Sign In"
                     AuthMode.SIGN_UP -> "Create Account"
                     AuthMode.CONFIRM -> "Confirm"
-                }
+                },
+                style = MaterialTheme.typography.titleMedium,
             )
         }
 
